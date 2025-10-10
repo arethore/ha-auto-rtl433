@@ -1,0 +1,23 @@
+# Build output
+/target/
+
+# IDE files
+/.vscode/
+/.idea/
+*.iml
+
+# Logs and temp
+*.log
+/logs/
+/tmp/
+
+# Maven/Gradle wrappers (if generated later)
+.mvn/
+.gradle/
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# JetBrains and VSCode launch configs
+/.launches/

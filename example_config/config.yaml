@@ -1,0 +1,139 @@
+logback:
+  level: info
+  format: text
+  timestamp: true
+  color: true
+  file: null
+  # Example to switch to file logging with rotation:
+  # file: /var/log/ha_auto_rtl433/ha_auto_rtl433.log
+  # rolling_pattern: /var/log/ha_auto_rtl433/ha_auto_rtl433.%d{yyyy-MM-dd}.%i.log
+  # max_file_size: 10MB
+  # max_history: 14
+
+mqtt:
+  host: 192.168.30.3
+  port: 1883
+  username: mqtt
+  password: password
+  reconfigExisting: true
+  queueCapacity: 256
+
+rtl433:
+  process: "sudo rtl_433 -F json"
+  whitelist:
+    - model: Esperanza-EWS
+      id: 001
+      name: Fridge Thermometer
+      entities:
+        - attribute: temperature_F
+          rename: temperature_C
+          name: Temperature
+          type: sensor
+          class: temperature
+          unit: "°C"
+          conversion: "round(((value - 32) * 5 / 9) * 10) / 10"
+        - attribute: battery_ok
+          name: Battery
+          type: binary_sensor
+          rename: battery
+          class: battery
+          on_value: ON
+          off_value: OFF
+          value_template: "{{ 'ON' if value | int == 1 else 'OFF' }}"
+    - model: Esperanza-EWS
+      id: 002
+      name: Freezer Thermometer
+      entities:
+        - attribute: temperature_F
+          rename: temperature_C
+          name: Temperature
+          type: sensor
+          class: temperature
+          unit: "°C"
+          conversion: "round(((value - 32) * 5 / 9) * 10) / 10"
+        - attribute: battery_ok
+          name: Battery
+          type: binary_sensor
+          rename: battery
+          class: battery
+          on_value: 0
+          off_value: 1
+    - model: Oregon-THGR122N
+      id: 010
+      name: West Outdoor Sensor
+      entities:
+        - attribute: temperature_C
+          name: Temperature
+          type: sensor
+          class: temperature
+          unit: "°C"
+        - attribute: humidity
+          name: Humidity
+          type: sensor
+          class: humidity
+          unit: "%"
+        - attribute: battery_ok
+          name: Battery
+          type: binary_sensor
+          rename: battery
+          class: battery
+          on_value: 0
+          off_value: 1
+    - model: Nexus-T
+      id: 020
+      name: Living Room Temperature
+      entities:
+        - attribute: temperature_C
+          name: Temperature
+          type: sensor
+          class: temperature
+          unit: "°C"
+        - attribute: battery_ok
+          name: Battery
+          type: binary_sensor
+          rename: battery
+          class: battery
+          on_value: 0
+          off_value: 1
+    - model: Nexus-TH
+      id: 030
+      name: Basement Thermo-Hygro
+      entities:
+        - attribute: temperature_C
+          name: Temperature
+          type: sensor
+          class: temperature
+          unit: "°C"
+        - attribute: humidity
+          name: Humidity
+          type: sensor
+          class: humidity
+          unit: "%"
+        - attribute: battery_ok
+          name: Battery
+          type: binary_sensor
+          rename: battery
+          class: battery
+          on_value: 0
+          off_value: 1
+    - model: Nexus-TH
+      id: 040
+      name: Upstairs Thermo-Hygro
+      entities:
+        - attribute: temperature_C
+          name: Temperature
+          type: sensor
+          class: temperature
+          unit: "°C"
+        - attribute: humidity
+          name: Humidity
+          type: sensor
+          class: humidity
+          unit: "%"
+        - attribute: battery_ok
+          name: Battery
+          type: binary_sensor
+          rename: battery
+          class: battery
+          on_value: 0
+          off_value: 1
