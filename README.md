@@ -25,9 +25,9 @@ java -jar target/ha-auto-rtl433-X.Y.Z-all.jar example_config/config.yaml
 
 ```mermaid
 flowchart LR
-    rtl[rtl_433\nRF sensors] --> app[ha-auto-rtl433\nparsing + conversions]
-    app --> mqtt[MQTT broker\nstate + availability topics]
-    mqtt --> ha[Home Assistant\nMQTT discovery]
+    rtl[rtl_433<br/>RF sensors] --> app[ha-auto-rtl433<br/>parsing + conversions]
+    app --> mqtt[MQTT broker<br/>state + availability topics]
+    mqtt --> ha[Home Assistant<br/>MQTT discovery]
 ```
 
 ## How it works
