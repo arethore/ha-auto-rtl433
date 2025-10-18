@@ -3,6 +3,13 @@
 `ha-auto-rtl433` consumes the JSON stream produced by [`rtl_433`](https://github.com/merbanan/rtl_433) and exposes your wireless sensors to [Home Assistant](https://www.home-assistant.io/) through MQTT discovery.  
 It loads a simple YAML file that describes your whitelist, translates each message into Home Assistant entities, and keeps the device state in sync.
 
+## Features
+
+- Auto-discovers Home Assistant entities from rtl_433 payloads.
+- Applies flexible conversions using AviatorScript expressions.
+- Keeps a lightweight yet resilient MQTT connection with automatic recovery.
+- Leverages virtual threads for concurrent JSON decoding without blocking.
+
 ## How it works
 
 1. The application launches the command configured under `rtl433.process` (for example `sudo rtl_433 -F json`).  
