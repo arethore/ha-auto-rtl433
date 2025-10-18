@@ -9,7 +9,7 @@ It loads a simple YAML file that describes your whitelist, translates each messa
    In environments where rtl_433 already streams JSON elsewhere, the command can be any alternative, such as `nc` pointing to a remote host.
 2. Every JSON line emitted by rtl_433 is parsed, matched against the configured whitelist, and converted into Home Assistant discovery payloads.
 3. MQTT discovery entities are provisioned (or updated) under `homeassistant/<component>/<unique_id>/config`.  
-   State updates are published to `rtl_433/devices/<model_id>/<attribute>/state`.
+   State updates are published to `rtl_433/devices/<model_haId>/<attribute>/state`, where `<model_haId>` is the sanitized combination of the rtl_433 `model` and the configured numeric `haId`.
 4. A dedicated availability connection publishes `online`/`offline` to `rtl_433/service/status`, and each entity advertises this topic as its `availability_topic`.
 
 The first execution should be run manually so that Home Assistant creates the devices with deterministic identifiers.  
@@ -51,7 +51,8 @@ rtl433:
   process: "sudo rtl_433 -F json"
   whitelist:
     - model: Esperanza-EWS
-      id: 001
+      haId: '001'
+      rtl433Id: '001'
       name: Fridge Thermometer
       entities:
         - attribute: temperature_F
@@ -70,7 +71,7 @@ rtl433:
 - **mqtt** – connection credentials, the discovery reconfiguration toggle, and the back-pressure queue size for publishes.
 - **rtl433.process** – command executed to obtain JSON lines. Use a shell-safe string if you need arguments (`"sudo rtl_433 -F json"`).  
   For network relays, you can point to tools such as `nc 192.168.30.4 55000`.
-- **rtl433.whitelist** – list of devices to expose. Each entity specifies the component type (`sensor`, `binary_sensor`, …), the rtl_433 attribute to read, optional renaming/conversion, and metadata such as `device_class` or units.
+- **rtl433.whitelist** – list of devices to expose. Each device entry declares a stable numeric Home Assistant identifier (`haId`) and the rtl_433 identifier it should match (`rtl433Id`). Each entity then specifies the component type (`sensor`, `binary_sensor`, …), the rtl_433 attribute to read, optional renaming/conversion, and metadata such as `device_class` or units.
 
 ### Entity configuration reference
 

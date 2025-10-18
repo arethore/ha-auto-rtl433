@@ -137,19 +137,20 @@ public class App {
         try {
             RTL433Data data = mapper.readValue(json, RTL433Data.class);
             String dataModel = data.getModel();
-            String dataId = data.getId();
+            String rtl433Id = data.getRtl433Id();
             Optional<Config.Rtl433.WhitelistEntry> whitelistEntry = ConfigManager.INSTANCE.getConfig().getRtl433()
                     .getWhitelist()
                     .stream()
                     .filter(entry -> entry.getModel().equalsIgnoreCase(dataModel)
-                            && entry.getId() != null
-                            && dataId != null
-                            && entry.getId().equalsIgnoreCase(dataId))
+                            && entry.getRtl433Id() != null
+                            && rtl433Id != null
+                            && entry.getRtl433Id().equalsIgnoreCase(rtl433Id))
                     .findFirst();
 
             if (whitelistEntry.isPresent()) {
                 Config.Rtl433.WhitelistEntry entry = whitelistEntry.get();
-                LOGGER.info("✅ Allowed: Model={} | ID={}", dataModel, formatId(dataId));
+                LOGGER.info("✅ Allowed: Model={} | rtl433Id={} | haId={}", dataModel,
+                        formatValue(rtl433Id), formatValue(entry.getHaId()));
                 entry.getAllEntities().forEach(entity -> {
                     String attribute = entity.getAttribute();
                     Object rawValue = attribute != null ? data.get(attribute) : null;
@@ -179,15 +180,15 @@ public class App {
                 });
 
             } else {
-                LOGGER.debug("🚫 Ignored: Model={} | ID={}", dataModel, formatId(dataId));
+                LOGGER.debug("🚫 Ignored: Model={} | rtl433Id={}", dataModel, formatValue(rtl433Id));
             }
         } catch (Exception e) {
             LOGGER.warn("Failed to parse payload {}", json, e);
         }
     }
 
-    private static String formatId(String id) {
-        return id != null ? id : "n/a";
+    private static String formatValue(String value) {
+        return value != null ? value : "n/a";
     }
 
     private static Object applyConversion(Config.Rtl433.WhitelistEntry entry,

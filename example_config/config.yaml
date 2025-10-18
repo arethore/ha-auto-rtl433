@@ -22,7 +22,8 @@ rtl433:
   process: "sudo rtl_433 -F json"
   whitelist:
     - model: Esperanza-EWS
-      id: 001
+      haId: '001'
+      rtl433Id: '001'
       name: Fridge Thermometer
       entities:
         - attribute: temperature_F
@@ -41,7 +42,8 @@ rtl433:
           off_value: OFF
           value_template: "{{ 'ON' if value | int == 1 else 'OFF' }}"
     - model: Esperanza-EWS
-      id: 002
+      haId: '002'
+      rtl433Id: '002'
       name: Freezer Thermometer
       entities:
         - attribute: temperature_F
@@ -59,7 +61,8 @@ rtl433:
           on_value: 0
           off_value: 1
     - model: Oregon-THGR122N
-      id: 010
+      haId: '010'
+      rtl433Id: '010'
       name: West Outdoor Sensor
       entities:
         - attribute: temperature_C
@@ -80,7 +83,8 @@ rtl433:
           on_value: 0
           off_value: 1
     - model: Nexus-T
-      id: 020
+      haId: '020'
+      rtl433Id: '020'
       name: Living Room Temperature
       entities:
         - attribute: temperature_C
@@ -96,7 +100,8 @@ rtl433:
           on_value: 0
           off_value: 1
     - model: Nexus-TH
-      id: 030
+      haId: '030'
+      rtl433Id: '030'
       name: Basement Thermo-Hygro
       entities:
         - attribute: temperature_C
@@ -117,7 +122,8 @@ rtl433:
           on_value: 0
           off_value: 1
     - model: Nexus-TH
-      id: 040
+      haId: '040'
+      rtl433Id: '040'
       name: Upstairs Thermo-Hygro
       entities:
         - attribute: temperature_C

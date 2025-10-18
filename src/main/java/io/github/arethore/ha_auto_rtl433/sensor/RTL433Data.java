@@ -7,15 +7,16 @@ import java.util.Map;
 
 /**
  * Jackson-mapped representation of a single rtl_433 JSON record. Known fields
- * such as {@code model} and {@code id} are explicitly exposed while every other
- * attribute is captured in a dynamic map for later lookup.
+ * such as {@code model} and {@code id} (mapped to {@code rtl433Id}) are
+ * explicitly exposed while every other attribute is captured in a dynamic map
+ * for later lookup.
  */
 public class RTL433Data {
 
     @JsonProperty("model")
     private String model;
 
-    private String id;
+    private String rtl433Id;
 
     // Store all other fields dynamically
     private final Map<String, Object> extraFields = new HashMap<>();
@@ -30,12 +31,12 @@ public class RTL433Data {
     }
 
     @JsonProperty("id")
-    public void setId(Object id) {
-        this.id = id != null ? String.valueOf(id) : null;
+    public void setRtl433Id(Object id) {
+        this.rtl433Id = id != null ? String.valueOf(id) : null;
     }
 
-    public String getId() {
-        return id;
+    public String getRtl433Id() {
+        return rtl433Id;
     }
 
     public Object get(String key) {
@@ -68,7 +69,7 @@ public class RTL433Data {
     public String toString() {
         return "SensorData{" +
                 "model='" + model + '\'' +
-                ", id=" + id +
+                ", rtl433Id=" + rtl433Id +
                 ", extraFields=" + extraFields +
                 '}';
     }

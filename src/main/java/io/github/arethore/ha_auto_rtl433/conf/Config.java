@@ -202,11 +202,13 @@ public class Config {
 
         /**
          * Single rtl_433 device definition that enumerates the entities to expose
-         * for a given {@code model}/{@code id} pair.
+         * for a given {@code model}/{@code rtl433Id} pair while keeping a stable
+         * Home Assistant identifier via {@code haId}.
          */
         public static class WhitelistEntry {
             private String model;
-            private String id;
+            private String haId;
+            private String rtl433Id;
             private String name;
             private List<Entity> entities;
 
@@ -226,12 +228,20 @@ public class Config {
                 this.model = model;
             }
 
-            public String getId() {
-                return id;
+            public String getHaId() {
+                return haId;
             }
 
-            public void setId(String id) {
-                this.id = id;
+            public void setHaId(String haId) {
+                this.haId = haId;
+            }
+
+            public String getRtl433Id() {
+                return rtl433Id;
+            }
+
+            public void setRtl433Id(String rtl433Id) {
+                this.rtl433Id = rtl433Id;
             }
 
             public List<Entity> getEntities() {

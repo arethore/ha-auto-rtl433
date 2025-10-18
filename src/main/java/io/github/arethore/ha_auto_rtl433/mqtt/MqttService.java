@@ -318,9 +318,9 @@ public class MqttService implements AutoCloseable {
         }
 
         String sanitizedModel = sanitize(requireNonBlank(deviceEntry.getModel(), "Device model is required"));
-        String sanitizedId = sanitize(requireNonBlank(deviceEntry.getId(), "Device id is required"));
+        String sanitizedHaId = sanitize(requireNonBlank(deviceEntry.getHaId(), "Device haId is required"));
         String sanitizedAttribute = sanitize(attributeKey);
-        String deviceKey = sanitizedModel + "_" + sanitizedId;
+        String deviceKey = sanitizedModel + "_" + sanitizedHaId;
         String uniqueId = deviceKey + "_" + sanitizedAttribute;
         String stateTopic = "rtl_433/devices/" + deviceKey + "/" + sanitizedAttribute + "/state";
         return new EntityIdentifiers(component, uniqueId, deviceKey, sanitizedAttribute, stateTopic);
