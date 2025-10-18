@@ -13,6 +13,13 @@ It loads a simple YAML file that describes your whitelist, translates each messa
 - Keeps a lightweight yet resilient MQTT connection with automatic recovery.
 - Leverages virtual threads for concurrent JSON decoding without blocking.
 
+```mermaid
+flowchart LR
+    rtl[rtl_433<br/>RF sensors] --> app[ha-auto-rtl433<br/>parsing + conversions]
+    app --> mqtt[MQTT broker<br/>state + availability topics]
+    mqtt --> ha[Home Assistant<br/>MQTT discovery]
+```
+
 ## Getting started in 60 seconds
 
 ```bash
@@ -21,13 +28,6 @@ cd ha-auto-rtl433
 mvn package
 java -jar target/ha-auto-rtl433-X.Y.Z-all.jar example_config/config.yaml
 # where X.Y.Z is the version produced by Maven (see `target/`)
-```
-
-```mermaid
-flowchart LR
-    rtl[rtl_433<br/>RF sensors] --> app[ha-auto-rtl433<br/>parsing + conversions]
-    app --> mqtt[MQTT broker<br/>state + availability topics]
-    mqtt --> ha[Home Assistant<br/>MQTT discovery]
 ```
 
 ## How it works
