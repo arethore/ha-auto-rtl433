@@ -29,7 +29,6 @@ public class ServiceStatusPublisher implements AutoCloseable {
     private static final byte[] ONLINE_PAYLOAD = "online".getBytes(StandardCharsets.UTF_8);
     private static final byte[] OFFLINE_PAYLOAD = "offline".getBytes(StandardCharsets.UTF_8);
 
-    private final Config.Mqtt config;
     private final MqttClient client;
     private final MqttConnectOptions connectOptions;
     private volatile boolean connected;
@@ -38,7 +37,7 @@ public class ServiceStatusPublisher implements AutoCloseable {
     private volatile boolean reconnecting;
 
     public ServiceStatusPublisher(Config.Mqtt config) throws MqttException {
-        this.config = Objects.requireNonNull(config, "MQTT config is required");
+        Objects.requireNonNull(config, "MQTT config is required");
         String brokerUrl = "tcp://" + config.getHost() + ":" + config.getPort();
         String clientId = "ha-auto-rtl433-status-" + UUID.randomUUID();
         this.client = new MqttClient(brokerUrl, clientId, new MemoryPersistence());

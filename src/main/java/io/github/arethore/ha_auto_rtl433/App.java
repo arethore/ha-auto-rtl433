@@ -3,6 +3,7 @@ package io.github.arethore.ha_auto_rtl433;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -102,12 +103,7 @@ public class App {
     }
 
     public void runCommand(String commandLine) throws Exception {
-        // Split the command string into individual arguments
-        // (simple approach; for complex commands consider using "bash -c")
-        List<String> command = List.of(commandLine.split("\\s+"));
-
-        // Create and start the process
-        ProcessBuilder pb = new ProcessBuilder(command);
+        ProcessBuilder pb = buildProcess(commandLine);
         pb.redirectErrorStream(true); // merge stderr and stdout
         Process process = pb.start();
 
@@ -128,6 +124,59 @@ public class App {
         // Wait for the external command to finish (optional)
         int exitCode = process.waitFor();
         LOGGER.info("Command exited with code {}", exitCode);
+    }
+
+    ProcessBuilder buildProcess(String commandLine) {
+        if (commandLine == null || commandLine.isBlank()) {
+            throw new IllegalArgumentException("Command line must not be blank");
+        }
+        return new ProcessBuilder(parseCommand(commandLine));
+    }
+
+    List<String> parseCommand(String commandLine) {
+        List<String> args = new ArrayList<>();
+        StringBuilder current = new StringBuilder();
+        boolean inSingle = false;
+        boolean inDouble = false;
+        boolean escaped = false;
+        for (int i = 0; i < commandLine.length(); i++) {
+            char c = commandLine.charAt(i);
+            if (escaped) {
+                current.append(c);
+                escaped = false;
+                continue;
+            }
+            if (c == '\\') {
+                escaped = true;
+                continue;
+            }
+            if (c == '\'' && !inDouble) {
+                inSingle = !inSingle;
+                continue;
+            }
+            if (c == '\"' && !inSingle) {
+                inDouble = !inDouble;
+                continue;
+            }
+            if (!inSingle && !inDouble && Character.isWhitespace(c)) {
+                if (current.length() > 0) {
+                    args.add(current.toString());
+                    current.setLength(0);
+                }
+                continue;
+            }
+            current.append(c);
+        }
+        if (escaped || inSingle || inDouble) {
+            throw new IllegalArgumentException("Command line contains unfinished quotes or escapes");
+        }
+        if (current.length() > 0) {
+            args.add(current.toString());
+        }
+        if (args.isEmpty()) {
+            throw new IllegalArgumentException("Command line produced no arguments");
+        }
+        return args;
     }
 
     private void processJson(String json, long enqueuedAtNanos) {

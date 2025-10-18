@@ -41,7 +41,6 @@ public class MqttService implements AutoCloseable {
     private static final Logger LOGGER = LoggerFactory.getLogger(MqttService.class);
     private static final int DEFAULT_QUEUE_CAPACITY = 256;
 
-    private final Config.Mqtt config;
     private final MqttClient client;
     private final Set<String> knownEntities = ConcurrentHashMap.newKeySet();
     private final BlockingQueue<PublishRequest> publishQueue;
@@ -56,7 +55,7 @@ public class MqttService implements AutoCloseable {
     private Thread publisherThread;
 
     public MqttService(Config.Mqtt config) throws MqttException {
-        this.config = Objects.requireNonNull(config, "MQTT config is required");
+        Objects.requireNonNull(config, "MQTT config is required");
         String brokerUrl = "tcp://" + config.getHost() + ":" + config.getPort();
         MqttClientPersistence persistence = new MqttDefaultFilePersistence(
                 System.getProperty("java.io.tmpdir") + "/ha-auto-rtl433-paho");
@@ -153,26 +152,8 @@ public class MqttService implements AutoCloseable {
                 ? firstNonBlank(entity.getName(), identifiers.sanitizedAttribute)
                 : identifiers.sanitizedAttribute;
 
-        ObjectNode root = MAPPER.createObjectNode();
-        root.put("name", entityName);
-        root.put("unique_id", identifiers.uniqueId);
-        root.put("state_topic", identifiers.stateTopic);
-        root.put("availability_topic", ServiceStatusPublisher.STATUS_TOPIC);
-        if (entity.getEntityClass() != null && !entity.getEntityClass().isBlank()) {
-            root.put("device_class", entity.getEntityClass());
-        }
-        if (entity.getUnit() != null && !entity.getUnit().isBlank()) {
-            root.put("unit_of_measurement", entity.getUnit());
-        }
-        putIfNotBlank(root, "value_template", entity.getValueTemplate());
-        putAny(root, "payload_on", entity.getOnValue());
-        putAny(root, "payload_off", entity.getOffValue());
-
-        ObjectNode deviceNode = root.putObject("device");
-        deviceNode.putArray("identifiers").add(identifiers.deviceKey);
-        deviceNode.put("manufacturer", manufacturer);
-        deviceNode.put("model", modelName);
-        deviceNode.put("name", deviceName);
+        ObjectNode root = buildDiscoveryPayload(entity, identifiers, manufacturer, modelName, deviceName,
+                entityName);
 
         String topic = "homeassistant/" + identifiers.component + "/" + identifiers.uniqueId + "/config";
         try {
@@ -307,6 +288,31 @@ public class MqttService implements AutoCloseable {
             return value;
         }
         return fallback;
+    }
+
+    ObjectNode buildDiscoveryPayload(Config.Rtl433.WhitelistEntry.Entity entity, EntityIdentifiers identifiers,
+            String manufacturer, String modelName, String deviceName, String entityName) {
+        ObjectNode root = MAPPER.createObjectNode();
+        root.put("name", entityName);
+        root.put("unique_id", identifiers.uniqueId);
+        root.put("state_topic", identifiers.stateTopic);
+        root.put("availability_topic", ServiceStatusPublisher.STATUS_TOPIC);
+        if (entity.getEntityClass() != null && !entity.getEntityClass().isBlank()) {
+            root.put("device_class", entity.getEntityClass());
+        }
+        if (entity.getUnit() != null && !entity.getUnit().isBlank()) {
+            root.put("unit_of_measurement", entity.getUnit());
+        }
+        putIfNotBlank(root, "value_template", entity.getValueTemplate());
+        putAny(root, "payload_on", entity.getOnValue());
+        putAny(root, "payload_off", entity.getOffValue());
+
+        ObjectNode deviceNode = root.putObject("device");
+        deviceNode.putArray("identifiers").add(identifiers.deviceKey);
+        deviceNode.put("manufacturer", manufacturer);
+        deviceNode.put("model", modelName);
+        deviceNode.put("name", deviceName);
+        return root;
     }
 
     private EntityIdentifiers resolveIdentifiers(Config.Rtl433.WhitelistEntry deviceEntry,
@@ -515,14 +521,14 @@ public class MqttService implements AutoCloseable {
         return future;
     }
 
-    private static final class EntityIdentifiers {
+    static final class EntityIdentifiers {
         private final String component;
         private final String uniqueId;
         private final String deviceKey;
         private final String sanitizedAttribute;
         private final String stateTopic;
 
-        private EntityIdentifiers(String component, String uniqueId, String deviceKey, String sanitizedAttribute,
+        EntityIdentifiers(String component, String uniqueId, String deviceKey, String sanitizedAttribute,
                 String stateTopic) {
             this.component = component;
             this.uniqueId = uniqueId;

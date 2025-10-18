@@ -1,7 +1,6 @@
 package io.github.arethore.ha_auto_rtl433.conf;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Optional;
 
@@ -38,11 +37,11 @@ public enum ConfigManager {
         constructor.setPropertyUtils(propertyUtils);
 
         TypeDescription rtl433Desc = new TypeDescription(Config.Rtl433.class);
-        rtl433Desc.putListPropertyType("whitelist", Config.Rtl433.WhitelistEntry.class);
+        rtl433Desc.addPropertyParameters("whitelist", Config.Rtl433.WhitelistEntry.class);
         constructor.addTypeDescription(rtl433Desc);
 
         TypeDescription whitelistDesc = new TypeDescription(Config.Rtl433.WhitelistEntry.class);
-        whitelistDesc.putListPropertyType("entities", Config.Rtl433.WhitelistEntry.Entity.class);
+        whitelistDesc.addPropertyParameters("entities", Config.Rtl433.WhitelistEntry.Entity.class);
         constructor.addTypeDescription(whitelistDesc);
 
         if (configPath.isEmpty() || configPath.get().isBlank()) {
