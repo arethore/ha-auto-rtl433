@@ -32,7 +32,7 @@ java -jar target/ha-auto-rtl433-X.Y.Z-all.jar example_config/config.yaml
 
 ## How it works
 
-1. The application launches the command configured under `rtl433.process` (for example `sudo rtl_433 -F json`).  
+1. The application launches the command configured under `rtl433.process` (for example `/bin/sh -c 'sudo rtl_433 -F json 2>/dev/null'`).  
    In environments where rtl_433 already streams JSON elsewhere, the command can be any alternative, such as `nc` pointing to a remote host.
 2. Every JSON line emitted by rtl_433 is parsed, matched against the configured whitelist, and converted into Home Assistant discovery payloads.
 3. MQTT discovery entities are provisioned (or updated) under `homeassistant/<component>/<unique_id>/config`.  
@@ -78,8 +78,8 @@ rtl433:
   process: "sudo rtl_433 -F json"
   whitelist:
     - model: Esperanza-EWS
-      haId: '001'
-      rtl433Id: '001'
+      haId: "001"
+      rtl433Id: "001"
       name: Fridge Thermometer
       entities:
         - attribute: temperature_F
@@ -94,7 +94,7 @@ rtl433:
 ### Key sections
 
 - **logback** – optional logging preferences. Leave `file` as `null` for console logging or supply a path plus rotation settings.
--   To log to disk with rotation, uncomment the example block in `example_config/config.yaml` and adjust the paths (`file`, `rolling_pattern`, `max_file_size`, `max_history`). The pattern shown creates `/var/log/ha_auto_rtl433/ha_auto_rtl433.log`, rotates daily or when the size exceeds 10 MB, and retains the last 14 archives.
+- To log to disk with rotation, uncomment the example block in `example_config/config.yaml` and adjust the paths (`file`, `rolling_pattern`, `max_file_size`, `max_history`). The pattern shown creates `/var/log/ha_auto_rtl433/ha_auto_rtl433.log`, rotates daily or when the size exceeds 10 MB, and retains the last 14 archives.
 - **mqtt** – connection credentials, the discovery reconfiguration toggle, and the back-pressure queue size for publishes.
 - **rtl433.process** – command executed to obtain JSON lines. Arguments support standard quoting (`sudo rtl_433 -F json`, `"/usr/bin/rtl_433" "-F" "json"`), so you can keep complex invocations in a single string.
   For network relays, you can point to tools such as `nc 192.168.30.4 55000`.
@@ -104,17 +104,17 @@ rtl433:
 
 For every entry in `rtl433.whitelist` you can describe one or more entities with the following keys:
 
-| Field | Description |
-|-------|-------------|
-| `attribute` | Name of the rtl_433 field to extract from the JSON payload. |
-| `rename` | Optional key used to publish state topics with a different name (useful when the attribute name changes after conversion, e.g. `temperature_F` → `temperature_C`). |
-| `name` | Friendly name that appears in Home Assistant. |
-| `type` | Home Assistant component type (`sensor`, `binary_sensor`, …). |
-| `class` | Optional Home Assistant `device_class`. |
-| `unit` | Unit of measurement for sensors. |
-| `value_template` | Home Assistant Jinja template evaluated on the raw MQTT payload. Handy for binary sensors (`"{{ 'ON' if value | int == 1 else 'OFF' }}"`). |
-| `conversion` | Expression evaluated **before** publishing using [AviatorScript](https://github.com/killme2008/aviatorscript). The environment exposes a `value` variable and a helper `round()` function for convenience. |
-| `on_value` / `off_value` | Optional payloads for binary sensors when you prefer to map values before they reach Home Assistant. |
+| Field                    | Description                                                                                                                                                                                                |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| `attribute`              | Name of the rtl_433 field to extract from the JSON payload.                                                                                                                                                |
+| `rename`                 | Optional key used to publish state topics with a different name (useful when the attribute name changes after conversion, e.g. `temperature_F` → `temperature_C`).                                         |
+| `name`                   | Friendly name that appears in Home Assistant.                                                                                                                                                              |
+| `type`                   | Home Assistant component type (`sensor`, `binary_sensor`, …).                                                                                                                                              |
+| `class`                  | Optional Home Assistant `device_class`.                                                                                                                                                                    |
+| `unit`                   | Unit of measurement for sensors.                                                                                                                                                                           |
+| `value_template`         | Home Assistant Jinja template evaluated on the raw MQTT payload. Handy for binary sensors (`"{{ 'ON' if value                                                                                              | int == 1 else 'OFF' }}"`). |
+| `conversion`             | Expression evaluated **before** publishing using [AviatorScript](https://github.com/killme2008/aviatorscript). The environment exposes a `value` variable and a helper `round()` function for convenience. |
+| `on_value` / `off_value` | Optional payloads for binary sensors when you prefer to map values before they reach Home Assistant.                                                                                                       |
 
 You can combine `conversion` and `value_template`: the conversion runs first in the JVM, then the resulting value is handed to Home Assistant which can still apply a template if desired.
 

@@ -19,7 +19,7 @@ mqtt:
   queueCapacity: 256
 
 rtl433:
-  process: "sudo rtl_433 -F json"
+  process: "/bin/sh -c 'sudo rtl_433 -F json 2>/dev/null'"
   whitelist:
     - model: Esperanza-EWS
       haId: '001'

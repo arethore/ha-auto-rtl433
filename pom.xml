@@ -8,7 +8,7 @@
   <groupId>io.github.arethore</groupId>
   <artifactId>ha-auto-rtl433</artifactId>
   <description>Java bridge between rtl_433 JSON output and Home Assistant MQTT discovery.</description>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>1.0.0</version>
 
   <name>ha-auto-rtl433</name>
   <url>https://github.com/arethore/ha-auto-rtl433</url>
@@ -150,7 +150,8 @@
               <shadedClassifierName>all</shadedClassifierName>
               <createDependencyReducedPom>false</createDependencyReducedPom>
               <transformers>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                <transformer
+                  implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                   <mainClass>io.github.arethore.ha_auto_rtl433.App</mainClass>
                 </transformer>
               </transformers>
