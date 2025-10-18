@@ -1,5 +1,8 @@
 # ha-auto-rtl433
 
+![License](https://img.shields.io/badge/License-MIT-blue.svg)
+![Java](https://img.shields.io/badge/Java-21%2B-orange.svg)
+
 `ha-auto-rtl433` consumes the JSON stream produced by [`rtl_433`](https://github.com/merbanan/rtl_433) and exposes your wireless sensors to [Home Assistant](https://www.home-assistant.io/) through MQTT discovery.  
 It loads a simple YAML file that describes your whitelist, translates each message into Home Assistant entities, and keeps the device state in sync.
 
@@ -9,6 +12,16 @@ It loads a simple YAML file that describes your whitelist, translates each messa
 - Applies flexible conversions using AviatorScript expressions.
 - Keeps a lightweight yet resilient MQTT connection with automatic recovery.
 - Leverages virtual threads for concurrent JSON decoding without blocking.
+
+## Getting started in 60 seconds
+
+```bash
+git clone https://github.com/arethore/ha-auto-rtl433.git
+cd ha-auto-rtl433
+mvn package
+java -jar target/ha-auto-rtl433-X.Y.Z-all.jar example_config/config.yaml
+# where X.Y.Z is the version produced by Maven (see `target/`)
+```
 
 ## How it works
 
@@ -130,3 +143,12 @@ This project uses open-source libraries under permissive licenses:
 | [Logback Classic 1.5.6](https://logback.qos.ch/)                     | EPL 1.0    |
 
 All listed licenses are compatible with the [MIT License](./LICENSE) of this project.
+
+## Limitations / Known issues
+
+- Currently, lost messages are not replayed after an MQTT reconnect.
+- Future releases may include a persistent queue or replay buffer to mitigate this.
+
+## Community
+
+Feedback and pull requests are welcome, but please start with an issue describing your use case so we can align on the approach.
