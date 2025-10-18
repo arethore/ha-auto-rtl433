@@ -105,14 +105,14 @@ rtl433:
 For every entry in `rtl433.whitelist` you can describe one or more entities with the following keys:
 
 | Field                    | Description                                                                                                                                                                                                |
-| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `attribute`              | Name of the rtl_433 field to extract from the JSON payload.                                                                                                                                                |
 | `rename`                 | Optional key used to publish state topics with a different name (useful when the attribute name changes after conversion, e.g. `temperature_F` → `temperature_C`).                                         |
 | `name`                   | Friendly name that appears in Home Assistant.                                                                                                                                                              |
 | `type`                   | Home Assistant component type (`sensor`, `binary_sensor`, …).                                                                                                                                              |
 | `class`                  | Optional Home Assistant `device_class`.                                                                                                                                                                    |
 | `unit`                   | Unit of measurement for sensors.                                                                                                                                                                           |
-| `value_template`         | Home Assistant Jinja template evaluated on the raw MQTT payload. Handy for binary sensors (`"{{ 'ON' if value                                                                                              | int == 1 else 'OFF' }}"`). |
+| `value_template`         | Home Assistant Jinja template evaluated on the raw MQTT payload. Handy for binary sensors (`"{{ 'ON' if value \| int == 1 else 'OFF' }}"`).                                                                |
 | `conversion`             | Expression evaluated **before** publishing using [AviatorScript](https://github.com/killme2008/aviatorscript). The environment exposes a `value` variable and a helper `round()` function for convenience. |
 | `on_value` / `off_value` | Optional payloads for binary sensors when you prefer to map values before they reach Home Assistant.                                                                                                       |
 
