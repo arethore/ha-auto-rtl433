@@ -23,6 +23,13 @@ java -jar target/ha-auto-rtl433-X.Y.Z-all.jar example_config/config.yaml
 # where X.Y.Z is the version produced by Maven (see `target/`)
 ```
 
+```mermaid
+flowchart LR
+    rtl[rtl_433\nRF sensors] --> app[ha-auto-rtl433\nparsing + conversions]
+    app --> mqtt[MQTT broker\nstate + availability topics]
+    mqtt --> ha[Home Assistant\nMQTT discovery]
+```
+
 ## How it works
 
 1. The application launches the command configured under `rtl433.process` (for example `sudo rtl_433 -F json`).  
