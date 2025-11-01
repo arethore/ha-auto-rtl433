@@ -3,6 +3,10 @@ package io.github.arethore.ha_auto_rtl433.mqtt;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
@@ -28,13 +32,17 @@ public class ServiceStatusPublisher implements AutoCloseable {
     public static final String STATUS_TOPIC = "rtl_433/service/status";
     private static final byte[] ONLINE_PAYLOAD = "online".getBytes(StandardCharsets.UTF_8);
     private static final byte[] OFFLINE_PAYLOAD = "offline".getBytes(StandardCharsets.UTF_8);
+    private static final long DEFAULT_HEARTBEAT_INTERVAL_SECONDS = 60;
 
     private final MqttClient client;
     private final MqttConnectOptions connectOptions;
+    private final ScheduledExecutorService heartbeatExecutor;
+    private final long heartbeatIntervalSeconds;
     private volatile boolean connected;
     private volatile boolean announced;
     private final Object reconnectMonitor = new Object();
     private volatile boolean reconnecting;
+    private volatile ScheduledFuture<?> heartbeatTask;
 
     public ServiceStatusPublisher(Config.Mqtt config) throws MqttException {
         Objects.requireNonNull(config, "MQTT config is required");
@@ -42,6 +50,12 @@ public class ServiceStatusPublisher implements AutoCloseable {
         String clientId = "ha-auto-rtl433-status-" + UUID.randomUUID();
         this.client = new MqttClient(brokerUrl, clientId, new MemoryPersistence());
         this.connectOptions = buildOptions(config);
+        this.heartbeatIntervalSeconds = resolveHeartbeatInterval(config.getAvailabilityHeartbeatSeconds());
+        this.heartbeatExecutor = Executors.newSingleThreadScheduledExecutor(r -> {
+            Thread thread = new Thread(r, "mqtt-status-heartbeat");
+            thread.setDaemon(true);
+            return thread;
+        });
         this.client.setCallback(new MqttCallbackExtended() {
             @Override
             public void connectComplete(boolean reconnect, String serverURI) {
@@ -56,11 +70,13 @@ public class ServiceStatusPublisher implements AutoCloseable {
                 synchronized (reconnectMonitor) {
                     reconnecting = false;
                 }
+                startHeartbeat();
             }
 
             @Override
             public void connectionLost(Throwable cause) {
                 LOGGER.warn("Service status publisher connection lost", cause);
+                stopHeartbeat();
                 connected = false;
                 scheduleReconnect();
             }
@@ -85,14 +101,23 @@ public class ServiceStatusPublisher implements AutoCloseable {
         connected = client.isConnected();
         if (connected) {
             LOGGER.info("Service status publisher connected to MQTT broker");
+            startHeartbeat();
         }
     }
 
-    public synchronized void publishOnline() {
+    public void publishOnline() {
+        publishOnline(false);
+    }
+
+    private synchronized void publishOnline(boolean force) {
         if (!connected) {
+            if (force) {
+                announced = false;
+                return;
+            }
             throw new IllegalStateException("Status publisher is not connected");
         }
-        if (announced) {
+        if (announced && !force) {
             return;
         }
         try {
@@ -124,6 +149,7 @@ public class ServiceStatusPublisher implements AutoCloseable {
 
     @Override
     public synchronized void close() {
+        stopHeartbeat();
         publishOffline();
         try {
             if (client.isConnected()) {
@@ -138,6 +164,7 @@ public class ServiceStatusPublisher implements AutoCloseable {
                 LOGGER.warn("Failed to close status publisher client", e);
             }
             connected = false;
+            heartbeatExecutor.shutdownNow();
         }
     }
 
@@ -201,5 +228,39 @@ public class ServiceStatusPublisher implements AutoCloseable {
         }, "mqtt-status-reconnect");
         thread.setDaemon(true);
         thread.start();
+    }
+
+    private synchronized void startHeartbeat() {
+        ScheduledFuture<?> current = heartbeatTask;
+        if (current != null && !current.isCancelled() && !current.isDone()) {
+            return;
+        }
+        heartbeatTask = heartbeatExecutor.scheduleAtFixedRate(() -> {
+            try {
+                publishOnline(true);
+            } catch (Exception ex) {
+                LOGGER.debug("Service status heartbeat skipped: {}", ex.getMessage());
+            }
+        }, heartbeatIntervalSeconds, heartbeatIntervalSeconds, TimeUnit.SECONDS);
+    }
+
+    private synchronized void stopHeartbeat() {
+        ScheduledFuture<?> current = heartbeatTask;
+        if (current != null) {
+            current.cancel(true);
+            heartbeatTask = null;
+        }
+    }
+
+    private long resolveHeartbeatInterval(Integer requestedSeconds) {
+        if (requestedSeconds == null) {
+            return DEFAULT_HEARTBEAT_INTERVAL_SECONDS;
+        }
+        if (requestedSeconds < 5) {
+            LOGGER.warn("Configured heartbeat interval {}s is too low. Falling back to {}s", requestedSeconds,
+                    DEFAULT_HEARTBEAT_INTERVAL_SECONDS);
+            return DEFAULT_HEARTBEAT_INTERVAL_SECONDS;
+        }
+        return requestedSeconds;
     }
 }
