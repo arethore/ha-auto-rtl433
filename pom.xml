@@ -8,7 +8,7 @@
   <groupId>io.github.arethore</groupId>
   <artifactId>ha-auto-rtl433</artifactId>
   <description>Java bridge between rtl_433 JSON output and Home Assistant MQTT discovery.</description>
-  <version>1.0.0</version>
+  <version>1.1.0</version>
 
   <name>ha-auto-rtl433</name>
   <url>https://github.com/arethore/ha-auto-rtl433</url>

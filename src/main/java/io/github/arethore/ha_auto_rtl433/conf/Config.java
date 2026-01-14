@@ -126,6 +126,7 @@ public class Config {
         private String password;
         private boolean reconfigExisting;
         private Integer queueCapacity;
+        private Integer availabilityHeartbeatSeconds;
 
         public String getHost() {
             return host;
@@ -173,6 +174,14 @@ public class Config {
 
         public void setQueueCapacity(Integer queueCapacity) {
             this.queueCapacity = queueCapacity;
+        }
+
+        public Integer getAvailabilityHeartbeatSeconds() {
+            return availabilityHeartbeatSeconds;
+        }
+
+        public void setAvailabilityHeartbeatSeconds(Integer availabilityHeartbeatSeconds) {
+            this.availabilityHeartbeatSeconds = availabilityHeartbeatSeconds;
         }
     }
 

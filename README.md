@@ -95,7 +95,7 @@ rtl433:
 
 - **logback** – optional logging preferences. Leave `file` as `null` for console logging or supply a path plus rotation settings.
 - To log to disk with rotation, uncomment the example block in `example_config/config.yaml` and adjust the paths (`file`, `rolling_pattern`, `max_file_size`, `max_history`). The pattern shown creates `/var/log/ha_auto_rtl433/ha_auto_rtl433.log`, rotates daily or when the size exceeds 10 MB, and retains the last 14 archives.
-- **mqtt** – connection credentials, the discovery reconfiguration toggle, and the back-pressure queue size for publishes.
+- **mqtt** – connection credentials, the discovery reconfiguration toggle, the back-pressure queue size for publishes, and the optional `availabilityHeartbeatSeconds` (defaults to 60 s; values below 5 are ignored) that keeps the status topic fresh.
 - **rtl433.process** – command executed to obtain JSON lines. Arguments support standard quoting (`sudo rtl_433 -F json`, `"/usr/bin/rtl_433" "-F" "json"`), so you can keep complex invocations in a single string.
   For network relays, you can point to tools such as `nc 192.168.30.4 55000`.
 - **rtl433.whitelist** – list of devices to expose. Each device entry declares a stable numeric Home Assistant identifier (`haId`) and the rtl_433 identifier it should match (`rtl433Id`). Each entity then specifies the component type (`sensor`, `binary_sensor`, …), the rtl_433 attribute to read, optional renaming/conversion, and metadata such as `device_class` or units.

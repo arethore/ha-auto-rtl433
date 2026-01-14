@@ -17,6 +17,7 @@ mqtt:
   password: password
   reconfigExisting: true
   queueCapacity: 256
+  availabilityHeartbeatSeconds: 60
 
 rtl433:
   process: "/bin/sh -c 'sudo rtl_433 -F json 2>/dev/null'"
